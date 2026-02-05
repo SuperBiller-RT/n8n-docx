@@ -2,11 +2,13 @@ FROM n8nio/n8n:2.6.3
 
 USER root
 
-# Install docx-templates where n8n + task-runner can resolve it
-WORKDIR /usr/local/lib/node_modules/n8n
-RUN npm i docx-templates@latest --omit=dev && npm cache clean --force
+# Install docx-templates in a separate folder (avoid n8n's pnpm workspace)
+WORKDIR /opt/n8n-custom
+RUN npm init -y \
+  && npm i docx-templates@latest --omit=dev \
+  && npm cache clean --force
 
-# Make sure Node can resolve modules from both global + n8n local node_modules
-ENV NODE_PATH=/usr/local/lib/node_modules:/usr/local/lib/node_modules/n8n/node_modules
+# Make sure task-runner can resolve it
+ENV NODE_PATH=/opt/n8n-custom/node_modules:/usr/local/lib/node_modules
 
 USER node
